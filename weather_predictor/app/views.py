@@ -2,6 +2,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+import numpy as np
+from sklearn.linear_model import LinearRegression
+#from scipy import interpolate
+
 import time
 import random
 import requests
@@ -23,9 +27,15 @@ def get_random_status(data):
         "outputs": [],
     }
     for i in data["all_inputs"]:
+        #tmp = interpolate.interp1d(np.arange(0,3), np.array([i["input_first"], i["input_second"], i["input_third"]]), fill_value='extrapolate')(3).tolist()
+        X = np.array([0, 1, 2]).reshape(-1, 1)
+        y = np.array([i["input_first"], i["input_second"], i["input_third"]])
+        reg = LinearRegression().fit(X, y)
+        tmp = reg.predict(np.array([3]).reshape(-1, 1))[0]
+        print(tmp)
         res["outputs"].append({
             "data_type_id": i["data_type_id"],
-            "output": (i["input_first"] + i["input_second"] + i["input_third"]) / 3,
+            "output": tmp,
         })
     return res
 
